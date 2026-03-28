@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Product Management</title>
+    <link rel="stylesheet" href="Style.css">
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .admin-container h2 {
+            margin-bottom: 24px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .admin-table th {
+            background: #f5f5f5;
+        }
+
+        .admin-actions button {
+            margin: 0 4px;
+        }
+
+        .add-product-form {
+            margin-bottom: 32px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .add-product-form input {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .add-product-form button {
+            padding: 6px 16px;
+            border-radius: 4px;
+            border: none;
+            background: #7efff5;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <h2>Admin - Product Management</h2>
+        <form class="add-product-form" id="addProductForm">
+            <input type="text" id="productName" placeholder="Product Name" required>
+            <input type="text" id="productImg" placeholder="Image URL" required>
+            <input type="number" id="productPrice" placeholder="Price" required>
+            <input type="text" id="productColor" placeholder="Color">
+            <input type="text" id="productStorage" placeholder="Capacity">
+            <button type="submit">Add Product</button>
+        </form>
+        <table class="admin-table" id="adminProductTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Color</th>
+                    <th>Capacity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Product rows will be rendered here -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        // Sử dụng localStorage để demo quản lý sản phẩm
+        function getProducts() {
+            return JSON.parse(localStorage.getItem('adminProducts')) || [];
+        }
+        function saveProducts(products) {
+            localStorage.setItem('adminProducts', JSON.stringify(products));
+        }
+        function renderProducts() {
+            const products = getProducts();
+            const tbody = document.querySelector('#adminProductTable tbody');
+            tbody.innerHTML = '';
+            products.forEach((p, idx) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><img src="${p.img}" alt="" style="width:60px;height:60px;object-fit:contain;"></td>
+                        <td>${p.name}</td>
+                        <td>${p.price.toLocaleString()}₫</td>
+                        <td>${p.color || ''}</td>
+                        <td>${p.storage || ''}</td>
+                        <td class="admin-actions">
+                            <button onclick="deleteProduct(${idx})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        function deleteProduct(idx) {
+            const products = getProducts();
+            if (confirm('Delete this product?')) {
+                products.splice(idx, 1);
+                saveProducts(products);
+                renderProducts();
+            }
+        }
+        document.getElementById('addProductForm').onsubmit = function (e) {
+            e.preventDefault();
+            const name = document.getElementById('productName').value;
+            const img = document.getElementById('productImg').value;
+            const price = parseInt(document.getElementById('productPrice').value);
+            const color = document.getElementById('productColor').value;
+            const storage = document.getElementById('productStorage').value;
+            const products = getProducts();
+            products.push({ name, img, price, color, storage });
+            saveProducts(products);
+            renderProducts();
+            this.reset();
+        };
+        // Khởi tạo
+        renderProducts();
+        // Để xóa sản phẩm dùng window scope
+        window.deleteProduct = deleteProduct;
+    </script>
+</body>
+
+</html>
